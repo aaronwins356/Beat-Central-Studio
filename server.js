@@ -6,16 +6,30 @@ const app = express();
 const PORT = 3000;
 
 // ---- Load sites config ----
+// Try loading from ../config/sites.json first (for Windows deployment),
+// fallback to ./sites.json (for local development/testing)
 const sitesConfigPath = path.join(__dirname, "../config/sites.json");
+const localSitesConfigPath = path.join(__dirname, "sites.json");
 let sites = [];
 
 function loadSites() {
   try {
-    const raw = fs.readFileSync(sitesConfigPath, "utf8");
-    sites = JSON.parse(raw);
-    console.log("Loaded sites config:", sites);
+    // Try the external config path first
+    if (fs.existsSync(sitesConfigPath)) {
+      const raw = fs.readFileSync(sitesConfigPath, "utf8");
+      sites = JSON.parse(raw);
+      console.log("Loaded sites config from:", sitesConfigPath);
+    } else if (fs.existsSync(localSitesConfigPath)) {
+      // Fallback to local sites.json
+      const raw = fs.readFileSync(localSitesConfigPath, "utf8");
+      sites = JSON.parse(raw);
+      console.log("Loaded sites config from:", localSitesConfigPath);
+    } else {
+      console.log("No sites config found, using empty config");
+      sites = [];
+    }
   } catch (err) {
-    console.error("Failed to load sites config:", err);
+    console.error("Failed to load sites config:", err.message);
     sites = [];
   }
 }
@@ -94,9 +108,22 @@ app.use((req, res, next) => {
   express.static(rootPath)(req, res, next);
 });
 
-// Fallback root (optional)
+// ---- Serve NoteLab static files from current directory ----
+// Only serve specific file types to prevent exposure of private files
+const allowedExtensions = ['.html', '.css', '.js', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.woff', '.woff2', '.ttf'];
+
+app.use((req, res, next) => {
+  const ext = path.extname(req.path).toLowerCase();
+  // Only serve allowed file types or root path
+  if (req.path === '/' || allowedExtensions.includes(ext)) {
+    return express.static(__dirname)(req, res, next);
+  }
+  next();
+});
+
+// Fallback: serve index.html for the music app at root
 app.get("/", (req, res) => {
-  res.redirect("/admin");
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
 app.listen(PORT, () => {
