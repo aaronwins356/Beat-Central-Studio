@@ -109,8 +109,17 @@ app.use((req, res, next) => {
 });
 
 // ---- Serve NoteLab static files from current directory ----
-// This serves index.html, styles.css, and JS files for the music creator app
-app.use(express.static(__dirname));
+// Only serve specific file types to prevent exposure of private files
+const allowedExtensions = ['.html', '.css', '.js', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.woff', '.woff2', '.ttf'];
+
+app.use((req, res, next) => {
+  const ext = path.extname(req.path).toLowerCase();
+  // Only serve allowed file types or root path
+  if (req.path === '/' || allowedExtensions.includes(ext)) {
+    return express.static(__dirname)(req, res, next);
+  }
+  next();
+});
 
 // Fallback: serve index.html for the music app at root
 app.get("/", (req, res) => {

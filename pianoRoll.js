@@ -203,7 +203,7 @@ let scrollContainer = null;
 let timelineCanvas = null;
 let timelineCtx = null;
 let playheadPosition = 0; // In 16th notes
-let currentInstrument = 'piano';
+let pianoRollInstrument = 'piano'; // Internal instrument state for note colors
 
 /**
  * Initialize the piano roll canvas
@@ -339,7 +339,7 @@ function drawNote(note) {
   const h = PIANO_ROLL_CONFIG.noteHeight;
   
   // Get note color based on current instrument
-  const color = PIANO_ROLL_CONFIG.noteColors[currentInstrument] || '#5865f2';
+  const color = PIANO_ROLL_CONFIG.noteColors[pianoRollInstrument] || '#5865f2';
   
   // Check if selected or hovered
   const isSelected = selectedNotes.has(note.id);
@@ -353,10 +353,25 @@ function drawNote(note) {
     ctx.fillStyle = lightenColor(color, 20);
   }
   
-  // Draw rounded rectangle
+  // Draw rounded rectangle with fallback for older browsers
   const radius = 3;
   ctx.beginPath();
-  ctx.roundRect(x + 1, y + 1, w - 2, h - 2, radius);
+  if (ctx.roundRect) {
+    ctx.roundRect(x + 1, y + 1, w - 2, h - 2, radius);
+  } else {
+    // Fallback for browsers without roundRect support
+    const rx = x + 1, ry = y + 1, rw = w - 2, rh = h - 2;
+    ctx.moveTo(rx + radius, ry);
+    ctx.lineTo(rx + rw - radius, ry);
+    ctx.quadraticCurveTo(rx + rw, ry, rx + rw, ry + radius);
+    ctx.lineTo(rx + rw, ry + rh - radius);
+    ctx.quadraticCurveTo(rx + rw, ry + rh, rx + rw - radius, ry + rh);
+    ctx.lineTo(rx + radius, ry + rh);
+    ctx.quadraticCurveTo(rx, ry + rh, rx, ry + rh - radius);
+    ctx.lineTo(rx, ry + radius);
+    ctx.quadraticCurveTo(rx, ry, rx + radius, ry);
+    ctx.closePath();
+  }
   ctx.fill();
   
   // Draw border
@@ -467,7 +482,7 @@ function setPlayheadPosition(position) {
  * @param {string} instrument - Instrument ID
  */
 function setCurrentInstrument(instrument) {
-  currentInstrument = instrument;
+  pianoRollInstrument = instrument;
   render();
 }
 
@@ -519,7 +534,7 @@ function handleMouseDown(event) {
       
       // Play preview
       if (window.AudioEngine) {
-        window.AudioEngine.playPreviewNote(currentInstrument, pitch);
+        window.AudioEngine.playPreviewNote(pianoRollInstrument, pitch);
       }
     }
   }
