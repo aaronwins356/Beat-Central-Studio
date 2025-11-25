@@ -28,3 +28,12 @@ Thumbs.db
 # Build artifacts
 dist/
 build/
+out/
+
+# Electron builder output
+*.exe
+*.dmg
+*.AppImage
+*.deb
+*.rpm
+*.snap
