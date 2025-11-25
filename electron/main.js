@@ -64,14 +64,28 @@ function createMenu(mainWindow) {
           label: 'New Project',
           accelerator: 'CmdOrCtrl+N',
           click: () => {
-            mainWindow.webContents.executeJavaScript('window.UI && createNewSong && createNewSong()');
+            mainWindow.webContents.executeJavaScript(`
+              try {
+                if (typeof createNewSong === 'function') {
+                  createNewSong();
+                }
+              } catch (e) { console.error('New project error:', e); }
+            `);
           }
         },
         {
           label: 'Save Project',
           accelerator: 'CmdOrCtrl+S',
           click: () => {
-            mainWindow.webContents.executeJavaScript('window.UI && saveCurrentSong && saveCurrentSong()');
+            mainWindow.webContents.executeJavaScript(`
+              try {
+                if (typeof saveCurrentSong === 'function') {
+                  saveCurrentSong();
+                } else if (typeof showSaveModal === 'function') {
+                  showSaveModal();
+                }
+              } catch (e) { console.error('Save project error:', e); }
+            `);
           }
         },
         { type: 'separator' },
@@ -79,14 +93,26 @@ function createMenu(mainWindow) {
           label: 'Export as WAV',
           accelerator: 'CmdOrCtrl+E',
           click: () => {
-            mainWindow.webContents.executeJavaScript('exportToWAV && exportToWAV()');
+            mainWindow.webContents.executeJavaScript(`
+              try {
+                if (typeof exportToWAV === 'function') {
+                  exportToWAV();
+                }
+              } catch (e) { console.error('Export WAV error:', e); }
+            `);
           }
         },
         {
           label: 'Export as MP3',
           accelerator: 'CmdOrCtrl+Shift+E',
           click: () => {
-            mainWindow.webContents.executeJavaScript('exportToMP3 && exportToMP3()');
+            mainWindow.webContents.executeJavaScript(`
+              try {
+                if (typeof exportToMP3 === 'function') {
+                  exportToMP3();
+                }
+              } catch (e) { console.error('Export MP3 error:', e); }
+            `);
           }
         },
         { type: 'separator' },
