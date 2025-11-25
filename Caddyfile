@@ -1,0 +1,15 @@
+# Main site (pysing)
+pysing.duckdns.org {
+    reverse_proxy localhost:3000
+    encode gzip
+    file_server
+}
+
+# To add more sites using the same Node server, copy this block
+# and change the domain:
+#
+# another-subdomain.duckdns.org {
+#     reverse_proxy localhost:3000
+#     encode gzip
+#     file_server
+# }

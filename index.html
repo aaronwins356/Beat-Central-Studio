@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Schedule with Mortgages by Gabe</title>
+
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Calendly script (for inline widget / future popups) -->
+  <script src="https://assets.calendly.com/assets/external/widget.js" async></script>
+
+  <style>
+    :root {
+      --bg-page: #f3f4f6;
+      --card-gradient-1: linear-gradient(135deg, #f9fafb, #e5edf8);
+      --card-gradient-2: linear-gradient(135deg, #f9fafb, #e8f3ef);
+      --card-gradient-3: linear-gradient(135deg, #f9fafb, #f3ece3);
+      --card-gradient-4: linear-gradient(135deg, #f9fafb, #e9ecf6);
+      --btn-bg: #2563eb;
+      --btn-bg-hover: #1d4ed8;
+      --text-main: #111827;
+      --text-muted: #6b7280;
+      --border-subtle: #e5e7eb;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+    }
+
+    .page {
+      max-width: 1180px;
+      margin: 40px auto 60px;
+      padding: 0 20px;
+    }
+
+    /* HEADER */
+
+    .header {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .headshot {
+      width: 120px;
+      height: 120px;
+      border-radius: 999px;
+      object-fit: cover;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      flex-shrink: 0;
+      border: 3px solid #ffffff;
+    }
+
+    .header-text h1 {
+      margin: 0;
+      font-size: 32px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .header-text .subtitle {
+      margin-top: 6px;
+      font-size: 16px;
+      color: var(--text-muted);
+    }
+
+    .header-text .mini-bio {
+      margin-top: 10px;
+      font-size: 15px;
+      color: #4b5563;
+      max-width: 560px;
+    }
+
+    /* TRUST BADGES */
+
+    .trust-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 8px 0 30px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: #ffffff;
+      font-size: 13px;
+      color: #4b5563;
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #111827;
+      opacity: 0.7;
+    }
+
+    /* GRID OF OPTIONS */
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
+      margin-bottom: 36px;
+    }
+
+    .card {
+      position: relative;
+      border-radius: 18px;
+      padding: 22px 20px 20px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 14px 35px rgba(15, 23, 42, 0.12);
+      overflow: hidden;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.16);
+    }
+
+    .card--1 { background-image: var(--card-gradient-1); }
+    .card--2 { background-image: var(--card-gradient-2); }
+    .card--3 { background-image: var(--card-gradient-3); }
+    .card--4 { background-image: var(--card-gradient-4); }
+
+    .card-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #111827;
+      margin-bottom: 10px;
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    .card-title {
+      margin: 0;
+      font-size: 19px;
+      font-weight: 600;
+    }
+
+    .card-meta {
+      margin-top: 4px;
+      font-size: 13px;
+      color: #4b5563;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .card-description {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #4b5563;
+      line-height: 1.5;
+    }
+
+    .card-footer-row {
+      margin-top: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .card-footer-row span {
+      font-size: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 9px 18px;
+      border-radius: 999px;
+      background: var(--btn-bg);
+      color: #ffffff;
+      border: none;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.16s ease, transform 0.08s ease;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      background: var(--btn-bg-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    /* INLINE CALENDLY SECTION */
+
+    .inline-calendly-wrapper {
+      margin-top: 20px;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.14);
+      background: #ffffff;
+    }
+
+    .inline-calendly-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 14px;
+      color: #4b5563;
+      background: #f9fafb;
+    }
+
+    .inline-calendly-body {
+      min-height: 780px;
+    }
+
+    /* FOOTER */
+
+    .footer {
+      margin-top: 26px;
+      font-size: 12px;
+      color: #6b7280;
+      line-height: 1.6;
+    }
+
+    .footer a {
+      color: #4b5563;
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+    }
+
+    .footer-top {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .footer-contact {
+      font-size: 13px;
+    }
+
+    /* RESPONSIVE */
+
+    @media (max-width: 900px) {
+      .header {
+        flex-direction: row;
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .page {
+        margin-top: 26px;
+      }
+
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .options-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+
+    <!-- HEADER -->
+    <section class="header">
+      <img
+        src="HEADSHOT_URL_HERE"
+        alt="Headshot"
+        class="headshot"
+      />
+
+      <div class="header-text">
+        <h1>Meet with Gabe</h1>
+        <div class="subtitle">
+          Mortgage Loan Officer &amp; Branch Owner – C2 Financial
+        </div>
+        <p class="mini-bio">
+          Helping Texas families, investors, and agents move confidently through the mortgage process with clear guidance and fast, reliable closings.
+        </p>
+      </div>
+    </section>
+
+    <!-- TRUST BADGES -->
+    <section class="trust-row">
+      <div class="badge">
+        <span class="badge-dot"></span>
+        #2 volume leader at C2 Financial
+      </div>
+      <div class="badge">
+        <span class="badge-dot"></span>
+        Less than 15 days per closing in many cases
+      </div>
+      <div class="badge">
+        <span class="badge-dot"></span>
+        99.3% prequalification success rate
+      </div>
+      <div class="badge">
+        <span class="badge-dot"></span>
+        Immediate follow-up and proactive communication
+      </div>
+    </section>
+
+    <!-- BOOKING OPTIONS -->
+    <section class="options-grid">
+
+      <!-- CARD 1: New Client -->
+      <article class="card card--1">
+        <div class="card-icon">⭐</div>
+        <h2 class="card-title">New Client Mortgage Consultation</h2>
+        <div class="card-meta">30 MIN • PHONE OR ZOOM</div>
+        <p class="card-description">
+          Best if you’re buying, refinancing, or just starting to explore options.
+          We’ll talk through goals, numbers, and next steps so you leave with a clear plan.
+        </p>
+        <div class="card-footer-row">
+          <span>Perfect for first-time or new-to-Gabe clients.</span>
+          <!-- TODO: replace href with your actual 30-min new client Calendly event link -->
+          <a
+            class="btn"
+            href="https://calendly.com/mortagesbygabe"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Book 30-min consult
+          </a>
+        </div>
+      </article>
+
+      <!-- CARD 2: Returning Client -->
+      <article class="card card--2">
+        <div class="card-icon">↻</div>
+        <h2 class="card-title">Returning Client / Loan Review</h2>
+        <div class="card-meta">15 MIN • QUICK CHECK-IN</div>
+        <p class="card-description">
+          For in-process loans, refi check-ins, or quick strategy updates.
+          We’ll review where things stand and make sure everything is on track.
+        </p>
+        <div class="card-footer-row">
+          <span>Ideal if you’ve already worked with Gabe.</span>
+          <!-- TODO: replace href with your actual 15-min returning client Calendly event link -->
+          <a
+            class="btn"
+            href="https://calendly.com/mortagesbygabe"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Book 15-min follow-up
+          </a>
+        </div>
+      </article>
+
+      <!-- CARD 3: New Agent Partnership -->
+      <article class="card card--3">
+        <div class="card-icon">🏡</div>
+        <h2 class="card-title">New Agent Partnership Strategy Call</h2>
+        <div class="card-meta">60 MIN • AGENTS ONLY</div>
+        <p class="card-description">
+          For real estate agents who want a high-performance lending partner.
+          We’ll map out co-marketing, communication expectations, and how we’ll help you win more deals.
+        </p>
+        <div class="card-footer-row">
+          <span>Best for agents meeting Gabe for the first time.</span>
+          <!-- TODO: replace href with your actual 60-min new agent Calendly event link -->
+          <a
+            class="btn"
+            href="https://calendly.com/mortagesbygabe"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Book 1-hour agent call
+          </a>
+        </div>
+      </article>
+
+      <!-- CARD 4: Agent Follow-Up -->
+      <article class="card card--4">
+        <div class="card-icon">📊</div>
+        <h2 class="card-title">Agent Follow-Up / Pipeline Review</h2>
+        <div class="card-meta">60 MIN • AGENTS ONLY</div>
+        <p class="card-description">
+          For existing agent partners. We’ll review pipeline, upcoming listings,
+          buyer strategies, and opportunities to help you close more, faster.
+        </p>
+        <div class="card-footer-row">
+          <span>For ongoing partners refining the playbook.</span>
+          <!-- TODO: replace href with your actual 60-min agent follow-up Calendly event link -->
+          <a
+            class="btn"
+            href="https://calendly.com/mortagesbygabe"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Book 1-hour review
+          </a>
+        </div>
+      </article>
+
+    </section>
+
+    <!-- INLINE CALENDLY (FALLBACK / EXTRA) -->
+    <section class="inline-calendly-wrapper">
+      <div class="inline-calendly-header">
+        Prefer to see all options first? Use the scheduler below to pick the time that works best for you.
+      </div>
+      <div class="inline-calendly-body">
+        <div
+          class="calendly-inline-widget"
+          data-url="https://calendly.com/mortagesbygabe"
+          style="min-width:320px;height:780px;"
+        ></div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="footer-top">
+        <div class="footer-contact">
+          Mortgages by Gabe &nbsp;•&nbsp; C2 Financial Corporation  
+        </div>
+        <div>
+          Licensed mortgage services available in accordance with state and federal regulations.
+        </div>
+      </div>
+      <div>
+        C2 Financial Corporation is licensed by the Texas Department of Savings and Mortgage Lending and other state regulators.
+        All loans are subject to lender approval and conditions. Rates and terms may vary and are subject to change.
+      </div>
+    </footer>
+
+  </main>
+</body>
+</html>

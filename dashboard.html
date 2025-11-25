@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>SelfHost Control Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #0f172a;
+      color: #e5e7eb;
+    }
+    .wrap {
+      max-width: 960px;
+      margin: 24px auto 40px;
+      padding: 0 16px;
+    }
+    h1 {
+      margin-top: 0;
+      font-size: 28px;
+    }
+    .card {
+      background: #020617;
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin-bottom: 18px;
+      border: 1px solid #1e293b;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      padding: 6px 8px;
+      border-bottom: 1px solid #1f2937;
+    }
+    th {
+      text-align: left;
+      color: #9ca3af;
+      font-weight: 500;
+      font-size: 13px;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 13px;
+      background: #111827;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      background: #2563eb;
+      color: #f9fafb;
+      margin-right: 8px;
+    }
+    .btn.secondary {
+      background: #374151;
+    }
+    .logs {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      background: #020617;
+      border-radius: 8px;
+      padding: 8px 10px;
+      max-height: 280px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>SelfHost Control Panel</h1>
+
+    <div class="card">
+      <h2 style="margin-top:4px;font-size:18px;">Sites</h2>
+      <p style="font-size:13px;color:#9ca3af;">
+        Below are the domains currently configured on this server. Edit
+        <code>C:\selfhost\config\sites.json</code> to add more, then click “Reload config”.
+      </p>
+      <div style="margin-bottom:10px;">
+        <button class="btn" onclick="reloadConfig()">Reload config</button>
+        <button class="btn secondary" onclick="loadSites()">Refresh table</button>
+      </div>
+      <table id="sites-table">
+        <thead>
+          <tr>
+            <th>Domain</th>
+            <th>Root Path</th>
+          </tr>
+        </thead>
+        <tbody id="sites-body">
+          <tr><td colspan="2">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top:4px;font-size:18px;">Recent Requests</h2>
+      <p style="font-size:13px;color:#9ca3af;">
+        Tail of <code>C:\selfhost\logs\access.log</code> (last 100 lines).
+      </p>
+      <div style="margin-bottom:10px;">
+        <button class="btn secondary" onclick="loadLogs()">Refresh logs</button>
+      </div>
+      <div id="logs" class="logs">Loading…</div>
+    </div>
+  </div>
+
+  <script>
+    async function loadSites() {
+      try {
+        const res = await fetch("/api/sites");
+        const data = await res.json();
+        const body = document.getElementById("sites-body");
+        body.innerHTML = "";
+        if (!data.sites || !data.sites.length) {
+          body.innerHTML = "<tr><td colspan='2'>No sites configured.</td></tr>";
+          return;
+        }
+        for (const s of data.sites) {
+          const tr = document.createElement("tr");
+          const tdDomain = document.createElement("td");
+          const tdRoot = document.createElement("td");
+          tdDomain.textContent = s.domain || "";
+          tdRoot.textContent = s.root || "";
+          tr.appendChild(tdDomain);
+          tr.appendChild(tdRoot);
+          body.appendChild(tr);
+        }
+      } catch (err) {
+        console.error(err);
+        document.getElementById("sites-body").innerHTML =
+          "<tr><td colspan='2'>Failed to load sites.</td></tr>";
+      }
+    }
+
+    async function loadLogs() {
+      try {
+        const res = await fetch("/api/logs?lines=100");
+        const data = await res.json();
+        const el = document.getElementById("logs");
+        if (data.error) {
+          el.textContent = data.error;
+        } else if (Array.isArray(data.lines)) {
+          el.textContent = data.lines.join("\n");
+        } else {
+          el.textContent = "No log data.";
+        }
+      } catch (err) {
+        console.error(err);
+        document.getElementById("logs").textContent = "Failed to load logs.";
+      }
+    }
+
+    async function reloadConfig() {
+      try {
+        await fetch("/api/reload", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+        await loadSites();
+      } catch (err) {
+        console.error(err);
+        alert("Failed to reload config.");
+      }
+    }
+
+    // initial load
+    loadSites();
+    loadLogs();
+  </script>
+</body>
+</html>
