@@ -1006,3 +1006,298 @@ input[type="range"]::-webkit-slider-thumb:hover {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.3; }
 }
+
+/* ==================== VERSION TAG ==================== */
+.version-tag {
+  font-size: 10px;
+  font-weight: 600;
+  background: var(--accent-primary);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ==================== INSTRUMENT RACK ==================== */
+.instrument-rack {
+  width: 180px;
+  background: var(--bg-dark);
+  border-left: 1px solid var(--border-color);
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+
+.instrument-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.instrument-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  background: var(--bg-medium);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.instrument-item:hover {
+  background: var(--bg-light);
+  transform: translateX(2px);
+}
+
+.instrument-item.active {
+  background: var(--accent-primary);
+}
+
+.instrument-icon {
+  font-size: 16px;
+  width: 24px;
+  text-align: center;
+}
+
+.instrument-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.instrument-item.active .instrument-name {
+  color: white;
+}
+
+/* ==================== DRUM MACHINE PANEL ==================== */
+.drum-panel {
+  background: var(--bg-dark);
+  border-top: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.drum-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  cursor: pointer;
+  user-select: none;
+  background: var(--bg-medium);
+  transition: background var(--transition-fast);
+}
+
+.drum-panel-header:hover {
+  background: var(--bg-light);
+}
+
+.drum-panel-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.drum-panel-collapse-icon {
+  font-size: 12px;
+  color: var(--text-muted);
+  transition: transform var(--transition-normal);
+}
+
+.drum-panel.collapsed .drum-panel-collapse-icon {
+  transform: rotate(-90deg);
+}
+
+.drum-panel-content {
+  padding: var(--spacing-md);
+  max-height: 200px;
+  overflow: auto;
+  transition: max-height var(--transition-normal);
+}
+
+.drum-panel.collapsed .drum-panel-content {
+  max-height: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Drum Machine Styles */
+.drum-machine {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.drum-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-xs) var(--spacing-sm);
+}
+
+.drum-header-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.drum-header-controls {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+.drum-btn {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--bg-light);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 12px;
+  transition: background var(--transition-fast);
+}
+
+.drum-btn:hover {
+  background: var(--bg-lighter);
+}
+
+.drum-lanes {
+  display: flex;
+  position: relative;
+}
+
+.drum-lane {
+  display: flex;
+  align-items: stretch;
+}
+
+.drum-lane-header {
+  width: 120px;
+  padding: var(--spacing-sm);
+  background: var(--bg-medium);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  flex-shrink: 0;
+}
+
+.drum-lane-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.drum-lane-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.drum-lane-btn {
+  width: 24px;
+  height: 20px;
+  padding: 0;
+  background: var(--bg-light);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+}
+
+.drum-lane-btn:hover {
+  background: var(--bg-lighter);
+}
+
+.drum-lane-btn.active {
+  background: var(--accent-danger);
+  color: white;
+  border-color: var(--accent-danger);
+}
+
+.drum-lane-btn.solo-btn.active {
+  background: var(--accent-warning);
+  color: #1a1a24;
+  border-color: var(--accent-warning);
+}
+
+.drum-lane-volume {
+  width: 60px;
+  height: 4px;
+}
+
+.drum-grid-container {
+  flex: 1;
+  overflow-x: auto;
+  background: var(--bg-darkest);
+}
+
+.drum-grid-canvas {
+  display: block;
+}
+
+/* ==================== MAIN CONTENT LAYOUT UPDATE ==================== */
+.main-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ==================== BOTTOM BAR HEIGHT ADJUSTMENT ==================== */
+.bottom-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: var(--bg-dark);
+  border-top: 1px solid var(--border-color);
+  height: 100px;
+  flex-shrink: 0;
+}
+
+/* ==================== MINI PIANO SIZE ADJUSTMENT ==================== */
+.mini-piano {
+  display: flex;
+  position: relative;
+  height: 70px;
+  background: var(--bg-darkest);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-xs);
+}
+
+.mini-piano-key {
+  width: 24px;
+  height: 62px;
+  background: linear-gradient(180deg, #f0f0f0 0%, #ffffff 100%);
+  border: 1px solid #ccc;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  position: relative;
+  z-index: 1;
+}
+
+.mini-piano-key.black {
+  width: 16px;
+  height: 42px;
+  background: linear-gradient(180deg, #3a3a3a 0%, #1a1a1a 100%);
+  border: 1px solid #000;
+  margin-left: -8px;
+  margin-right: -8px;
+  z-index: 2;
+}
+
+/* ==================== EXPORT BUTTONS ==================== */
+.top-bar-right .btn {
+  font-size: 12px;
+  padding: var(--spacing-xs) var(--spacing-sm);
+}

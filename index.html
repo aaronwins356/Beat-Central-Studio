@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NoteLab - Music Creator</title>
+  <title>NoteLab DAW - Browser-Based Music Creator</title>
 
   <!-- Font -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -79,6 +79,7 @@
       <div class="app-title">
         <span class="logo-icon">🎹</span>
         <span>NoteLab</span>
+        <span class="version-tag">DAW</span>
         <span id="song-title" style="margin-left: 12px; font-weight: 400; font-size: 14px; color: var(--text-muted);">Untitled</span>
       </div>
       
@@ -93,12 +94,19 @@
         <div class="instrument-selector">
           <label>Instrument</label>
           <select id="instrument-select">
-            <option value="piano">Piano</option>
-            <option value="pluck">Pluck</option>
-            <option value="saw">Saw Lead</option>
-            <option value="pad">Synth Pad</option>
-            <option value="bass">Bass</option>
-            <option value="bell">Bell</option>
+            <optgroup label="Synths">
+              <option value="piano">Piano</option>
+              <option value="pluck">Pluck</option>
+              <option value="saw">Saw Lead</option>
+              <option value="pad">Synth Pad</option>
+              <option value="bass">Bass</option>
+              <option value="bell">Bell</option>
+            </optgroup>
+            <optgroup label="Guitars">
+              <option value="cleanGuitar">Clean Guitar</option>
+              <option value="distortedGuitar">Distorted Guitar</option>
+              <option value="acousticGuitar">Acoustic Guitar</option>
+            </optgroup>
           </select>
         </div>
         
@@ -118,7 +126,8 @@
         <button id="new-song-btn" class="btn btn-secondary" title="New Song">📄 New</button>
         <button id="save-btn" class="btn btn-secondary" title="Save Song">💾 Save</button>
         <button id="load-btn" class="btn btn-secondary" title="Load Song">📂 Load</button>
-        <button id="export-btn" class="btn btn-primary" title="Export MP3">🎵 Export MP3</button>
+        <button id="export-wav-btn" class="btn btn-secondary" title="Export WAV">🎵 WAV</button>
+        <button id="export-btn" class="btn btn-primary" title="Export MP3">🎵 MP3</button>
       </div>
     </header>
     
@@ -202,6 +211,7 @@
             • Click on grid to add notes<br>
             • Right-click to delete notes<br>
             • Drag notes to move them<br>
+            • Toggle drum machine below<br>
             • Enable Record mode to capture keyboard/piano input during playback
           </p>
         </div>
@@ -232,6 +242,64 @@
         </div>
         
       </div>
+      
+      <!-- INSTRUMENT RACK (Right Side) -->
+      <aside class="instrument-rack">
+        <div class="panel-section">
+          <div class="panel-section-title">Instruments (9)</div>
+          <div class="instrument-list">
+            <div class="instrument-item" data-instrument="piano">
+              <span class="instrument-icon">🎹</span>
+              <span class="instrument-name">Piano</span>
+            </div>
+            <div class="instrument-item" data-instrument="pluck">
+              <span class="instrument-icon">🎸</span>
+              <span class="instrument-name">Pluck</span>
+            </div>
+            <div class="instrument-item" data-instrument="saw">
+              <span class="instrument-icon">🔊</span>
+              <span class="instrument-name">Saw Lead</span>
+            </div>
+            <div class="instrument-item" data-instrument="pad">
+              <span class="instrument-icon">🌊</span>
+              <span class="instrument-name">Synth Pad</span>
+            </div>
+            <div class="instrument-item" data-instrument="bass">
+              <span class="instrument-icon">🎵</span>
+              <span class="instrument-name">Bass</span>
+            </div>
+            <div class="instrument-item" data-instrument="bell">
+              <span class="instrument-icon">🔔</span>
+              <span class="instrument-name">Bell</span>
+            </div>
+            <div class="instrument-item" data-instrument="cleanGuitar">
+              <span class="instrument-icon">🎸</span>
+              <span class="instrument-name">Clean Guitar</span>
+            </div>
+            <div class="instrument-item" data-instrument="distortedGuitar">
+              <span class="instrument-icon">⚡</span>
+              <span class="instrument-name">Distort Guitar</span>
+            </div>
+            <div class="instrument-item" data-instrument="acousticGuitar">
+              <span class="instrument-icon">🪕</span>
+              <span class="instrument-name">Acoustic Guitar</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+    
+    <!-- DRUM MACHINE PANEL (Collapsible) -->
+    <div class="drum-panel">
+      <div class="drum-panel-header" id="drum-panel-toggle">
+        <span class="drum-panel-title">🥁 Drum Machine</span>
+        <span class="drum-panel-collapse-icon">▼</span>
+      </div>
+      <div class="drum-panel-content" id="drum-panel-content">
+        <div id="drum-machine-container">
+          <!-- Drum machine generated by JS -->
+        </div>
+      </div>
     </div>
     
     <!-- BOTTOM BAR -->
@@ -248,7 +316,7 @@
             <span class="indicator"></span>
             <span>Loop</span>
           </div>
-          <div id="metronome-toggle" class="transport-toggle" title="Toggle Metronome">
+          <div id="metronome-toggle" class="transport-toggle active" title="Toggle Metronome">
             <span class="indicator"></span>
             <span>Metronome</span>
           </div>
@@ -274,10 +342,10 @@
     <!-- STATUS BAR -->
     <div class="status-bar">
       <div class="status-left">
-        <span>8 bars • 1/16 grid • C0-C8 range</span>
+        <span>8 bars • 1/16 grid • C0-C8 range • 9 instruments • Drum machine</span>
       </div>
       <div class="status-right">
-        <span>NoteLab v1.0 • 100% Browser-Based</span>
+        <span>NoteLab DAW v2.0 • 100% Browser-Based</span>
       </div>
     </div>
     
@@ -319,10 +387,15 @@
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary modal-close">Cancel</button>
+        <button id="export-json-btn" class="btn btn-secondary">Export JSON</button>
+        <button id="import-json-btn" class="btn btn-secondary">Import JSON</button>
         <button id="load-confirm" class="btn btn-primary">Load</button>
       </div>
     </div>
   </div>
+  
+  <!-- Hidden file input for JSON import -->
+  <input type="file" id="json-file-input" accept=".json" style="display: none;" />
   
   <!-- Notifications Container -->
   <div id="notifications"></div>
@@ -330,6 +403,7 @@
   <!-- JavaScript Modules -->
   <script src="audioEngine.js"></script>
   <script src="pianoRoll.js"></script>
+  <script src="drumMachine.js"></script>
   <script src="transport.js"></script>
   <script src="storage.js"></script>
   <script src="ui.js"></script>
