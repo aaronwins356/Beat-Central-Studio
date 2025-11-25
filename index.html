@@ -3,462 +3,336 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Schedule with Mortgages by Gabe</title>
+  <title>NoteLab - Music Creator</title>
 
   <!-- Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-
-  <!-- Calendly script (for inline widget / future popups) -->
-  <script src="https://assets.calendly.com/assets/external/widget.js" async></script>
-
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css">
+  
+  <!-- Additional notification styles -->
   <style>
-    :root {
-      --bg-page: #f3f4f6;
-      --card-gradient-1: linear-gradient(135deg, #f9fafb, #e5edf8);
-      --card-gradient-2: linear-gradient(135deg, #f9fafb, #e8f3ef);
-      --card-gradient-3: linear-gradient(135deg, #f9fafb, #f3ece3);
-      --card-gradient-4: linear-gradient(135deg, #f9fafb, #e9ecf6);
-      --btn-bg: #2563eb;
-      --btn-bg-hover: #1d4ed8;
-      --text-main: #111827;
-      --text-muted: #6b7280;
-      --border-subtle: #e5e7eb;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--bg-page);
-      color: var(--text-main);
-    }
-
-    .page {
-      max-width: 1180px;
-      margin: 40px auto 60px;
-      padding: 0 20px;
-    }
-
-    /* HEADER */
-
-    .header {
+    /* Notification styles */
+    #notifications {
+      position: fixed;
+      top: 70px;
+      right: 20px;
+      z-index: 2000;
       display: flex;
-      gap: 24px;
-      align-items: center;
-      margin-bottom: 18px;
-    }
-
-    .headshot {
-      width: 120px;
-      height: 120px;
-      border-radius: 999px;
-      object-fit: cover;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-      flex-shrink: 0;
-      border: 3px solid #ffffff;
-    }
-
-    .header-text h1 {
-      margin: 0;
-      font-size: 32px;
-      font-weight: 600;
-      letter-spacing: -0.02em;
-    }
-
-    .header-text .subtitle {
-      margin-top: 6px;
-      font-size: 16px;
-      color: var(--text-muted);
-    }
-
-    .header-text .mini-bio {
-      margin-top: 10px;
-      font-size: 15px;
-      color: #4b5563;
-      max-width: 560px;
-    }
-
-    /* TRUST BADGES */
-
-    .trust-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin: 8px 0 30px;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
+      flex-direction: column;
       gap: 8px;
-      padding: 6px 12px;
-      border-radius: 999px;
-      border: 1px solid var(--border-subtle);
-      background: #ffffff;
-      font-size: 13px;
-      color: #4b5563;
     }
-
-    .badge-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: #111827;
-      opacity: 0.7;
-    }
-
-    /* GRID OF OPTIONS */
-
-    .options-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 24px;
-      margin-bottom: 36px;
-    }
-
-    .card {
-      position: relative;
-      border-radius: 18px;
-      padding: 22px 20px 20px;
-      border: 1px solid var(--border-subtle);
-      box-shadow: 0 14px 35px rgba(15, 23, 42, 0.12);
-      overflow: hidden;
-      transition: transform 0.18s ease, box-shadow 0.18s ease;
-    }
-
-    .card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.16);
-    }
-
-    .card--1 { background-image: var(--card-gradient-1); }
-    .card--2 { background-image: var(--card-gradient-2); }
-    .card--3 { background-image: var(--card-gradient-3); }
-    .card--4 { background-image: var(--card-gradient-4); }
-
-    .card-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.6);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      color: #111827;
-      margin-bottom: 10px;
-      background: rgba(255, 255, 255, 0.8);
-    }
-
-    .card-title {
-      margin: 0;
-      font-size: 19px;
-      font-weight: 600;
-    }
-
-    .card-meta {
-      margin-top: 4px;
-      font-size: 13px;
-      color: #4b5563;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-
-    .card-description {
-      margin-top: 10px;
-      font-size: 14px;
-      color: #4b5563;
-      line-height: 1.5;
-    }
-
-    .card-footer-row {
-      margin-top: 18px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      color: #6b7280;
-    }
-
-    .card-footer-row span {
-      font-size: 12px;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 9px 18px;
-      border-radius: 999px;
-      background: var(--btn-bg);
-      color: #ffffff;
-      border: none;
-      text-decoration: none;
+    
+    .notification {
+      padding: 12px 20px;
+      border-radius: 8px;
       font-size: 14px;
       font-weight: 500;
-      cursor: pointer;
-      transition: background 0.16s ease, transform 0.08s ease;
-      white-space: nowrap;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      animation: slideIn 0.3s ease;
     }
-
-    .btn:hover {
-      background: var(--btn-bg-hover);
-      transform: translateY(-1px);
+    
+    .notification-success {
+      background: #43b581;
+      color: white;
     }
-
-    .btn:active {
-      transform: translateY(0);
+    
+    .notification-warning {
+      background: #faa61a;
+      color: #1a1a24;
     }
-
-    /* INLINE CALENDLY SECTION */
-
-    .inline-calendly-wrapper {
-      margin-top: 20px;
-      border-radius: 18px;
-      overflow: hidden;
-      border: 1px solid var(--border-subtle);
-      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.14);
-      background: #ffffff;
+    
+    .notification-error {
+      background: #f04747;
+      color: white;
     }
-
-    .inline-calendly-header {
-      padding: 14px 18px;
-      border-bottom: 1px solid var(--border-subtle);
-      font-size: 14px;
-      color: #4b5563;
-      background: #f9fafb;
+    
+    .notification.fade-out {
+      animation: fadeOut 0.3s ease forwards;
     }
-
-    .inline-calendly-body {
-      min-height: 780px;
+    
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
     }
-
-    /* FOOTER */
-
-    .footer {
-      margin-top: 26px;
-      font-size: 12px;
-      color: #6b7280;
-      line-height: 1.6;
+    
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
     }
-
-    .footer a {
-      color: #4b5563;
-      text-decoration: underline;
-      text-decoration-thickness: 1px;
-    }
-
-    .footer-top {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: space-between;
-      margin-bottom: 6px;
-    }
-
-    .footer-contact {
-      font-size: 13px;
-    }
-
-    /* RESPONSIVE */
-
-    @media (max-width: 900px) {
-      .header {
-        flex-direction: row;
-        align-items: flex-start;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .page {
-        margin-top: 26px;
-      }
-
-      .header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .options-grid {
-        grid-template-columns: minmax(0, 1fr);
-      }
+    
+    /* No songs message */
+    .no-songs {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
     }
   </style>
 </head>
 
 <body>
-  <main class="page">
-
-    <!-- HEADER -->
-    <section class="header">
-      <img
-        src="HEADSHOT_URL_HERE"
-        alt="Headshot"
-        class="headshot"
-      />
-
-      <div class="header-text">
-        <h1>Meet with Gabe</h1>
-        <div class="subtitle">
-          Mortgage Loan Officer &amp; Branch Owner – C2 Financial
+  <div class="app-container">
+    
+    <!-- TOP BAR / HEADER -->
+    <header class="top-bar">
+      <div class="app-title">
+        <span class="logo-icon">🎹</span>
+        <span>NoteLab</span>
+        <span id="song-title" style="margin-left: 12px; font-weight: 400; font-size: 14px; color: var(--text-muted);">Untitled</span>
+      </div>
+      
+      <div class="top-bar-center">
+        <!-- BPM Control -->
+        <div class="bpm-control">
+          <label>BPM</label>
+          <input type="number" id="bpm-input" value="120" min="20" max="300" />
         </div>
-        <p class="mini-bio">
-          Helping Texas families, investors, and agents move confidently through the mortgage process with clear guidance and fast, reliable closings.
-        </p>
-      </div>
-    </section>
-
-    <!-- TRUST BADGES -->
-    <section class="trust-row">
-      <div class="badge">
-        <span class="badge-dot"></span>
-        #2 volume leader at C2 Financial
-      </div>
-      <div class="badge">
-        <span class="badge-dot"></span>
-        Less than 15 days per closing in many cases
-      </div>
-      <div class="badge">
-        <span class="badge-dot"></span>
-        99.3% prequalification success rate
-      </div>
-      <div class="badge">
-        <span class="badge-dot"></span>
-        Immediate follow-up and proactive communication
-      </div>
-    </section>
-
-    <!-- BOOKING OPTIONS -->
-    <section class="options-grid">
-
-      <!-- CARD 1: New Client -->
-      <article class="card card--1">
-        <div class="card-icon">⭐</div>
-        <h2 class="card-title">New Client Mortgage Consultation</h2>
-        <div class="card-meta">30 MIN • PHONE OR ZOOM</div>
-        <p class="card-description">
-          Best if you’re buying, refinancing, or just starting to explore options.
-          We’ll talk through goals, numbers, and next steps so you leave with a clear plan.
-        </p>
-        <div class="card-footer-row">
-          <span>Perfect for first-time or new-to-Gabe clients.</span>
-          <!-- TODO: replace href with your actual 30-min new client Calendly event link -->
-          <a
-            class="btn"
-            href="https://calendly.com/mortagesbygabe"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Book 30-min consult
-          </a>
+        
+        <!-- Instrument Selector -->
+        <div class="instrument-selector">
+          <label>Instrument</label>
+          <select id="instrument-select">
+            <option value="piano">Piano</option>
+            <option value="pluck">Pluck</option>
+            <option value="saw">Saw Lead</option>
+            <option value="pad">Synth Pad</option>
+            <option value="bass">Bass</option>
+            <option value="bell">Bell</option>
+          </select>
         </div>
-      </article>
-
-      <!-- CARD 2: Returning Client -->
-      <article class="card card--2">
-        <div class="card-icon">↻</div>
-        <h2 class="card-title">Returning Client / Loan Review</h2>
-        <div class="card-meta">15 MIN • QUICK CHECK-IN</div>
-        <p class="card-description">
-          For in-process loans, refi check-ins, or quick strategy updates.
-          We’ll review where things stand and make sure everything is on track.
-        </p>
-        <div class="card-footer-row">
-          <span>Ideal if you’ve already worked with Gabe.</span>
-          <!-- TODO: replace href with your actual 15-min returning client Calendly event link -->
-          <a
-            class="btn"
-            href="https://calendly.com/mortagesbygabe"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Book 15-min follow-up
-          </a>
+        
+        <!-- Record Indicator -->
+        <div id="record-indicator" class="record-indicator">
+          <span class="record-dot"></span>
+          <span class="record-text">READY</span>
         </div>
-      </article>
-
-      <!-- CARD 3: New Agent Partnership -->
-      <article class="card card--3">
-        <div class="card-icon">🏡</div>
-        <h2 class="card-title">New Agent Partnership Strategy Call</h2>
-        <div class="card-meta">60 MIN • AGENTS ONLY</div>
-        <p class="card-description">
-          For real estate agents who want a high-performance lending partner.
-          We’ll map out co-marketing, communication expectations, and how we’ll help you win more deals.
-        </p>
-        <div class="card-footer-row">
-          <span>Best for agents meeting Gabe for the first time.</span>
-          <!-- TODO: replace href with your actual 60-min new agent Calendly event link -->
-          <a
-            class="btn"
-            href="https://calendly.com/mortagesbygabe"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Book 1-hour agent call
-          </a>
-        </div>
-      </article>
-
-      <!-- CARD 4: Agent Follow-Up -->
-      <article class="card card--4">
-        <div class="card-icon">📊</div>
-        <h2 class="card-title">Agent Follow-Up / Pipeline Review</h2>
-        <div class="card-meta">60 MIN • AGENTS ONLY</div>
-        <p class="card-description">
-          For existing agent partners. We’ll review pipeline, upcoming listings,
-          buyer strategies, and opportunities to help you close more, faster.
-        </p>
-        <div class="card-footer-row">
-          <span>For ongoing partners refining the playbook.</span>
-          <!-- TODO: replace href with your actual 60-min agent follow-up Calendly event link -->
-          <a
-            class="btn"
-            href="https://calendly.com/mortagesbygabe"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Book 1-hour review
-          </a>
-        </div>
-      </article>
-
-    </section>
-
-    <!-- INLINE CALENDLY (FALLBACK / EXTRA) -->
-    <section class="inline-calendly-wrapper">
-      <div class="inline-calendly-header">
-        Prefer to see all options first? Use the scheduler below to pick the time that works best for you.
-      </div>
-      <div class="inline-calendly-body">
-        <div
-          class="calendly-inline-widget"
-          data-url="https://calendly.com/mortagesbygabe"
-          style="min-width:320px;height:780px;"
-        ></div>
-      </div>
-    </section>
-
-    <!-- FOOTER -->
-    <footer class="footer">
-      <div class="footer-top">
-        <div class="footer-contact">
-          Mortgages by Gabe &nbsp;•&nbsp; C2 Financial Corporation  
-        </div>
-        <div>
-          Licensed mortgage services available in accordance with state and federal regulations.
+        
+        <!-- Position Display -->
+        <div style="font-family: monospace; font-size: 18px; color: var(--text-primary); min-width: 80px;">
+          <span id="position-display">1.1.1</span>
         </div>
       </div>
-      <div>
-        C2 Financial Corporation is licensed by the Texas Department of Savings and Mortgage Lending and other state regulators.
-        All loans are subject to lender approval and conditions. Rates and terms may vary and are subject to change.
+      
+      <div class="top-bar-right">
+        <button id="new-song-btn" class="btn btn-secondary" title="New Song">📄 New</button>
+        <button id="save-btn" class="btn btn-secondary" title="Save Song">💾 Save</button>
+        <button id="load-btn" class="btn btn-secondary" title="Load Song">📂 Load</button>
+        <button id="export-btn" class="btn btn-primary" title="Export MP3">🎵 Export MP3</button>
       </div>
+    </header>
+    
+    <!-- MAIN CONTENT AREA -->
+    <div class="main-content">
+      
+      <!-- SIDE PANEL - Effects -->
+      <aside class="side-panel">
+        <div class="panel-section">
+          <div class="panel-section-title">Effects</div>
+          
+          <!-- Reverb -->
+          <div class="effect-control">
+            <div class="effect-header">
+              <span class="effect-name">Reverb</span>
+              <div id="reverb-toggle" class="toggle" title="Toggle Reverb"></div>
+            </div>
+            <div class="slider-control">
+              <div class="slider-label">
+                <span>Mix</span>
+                <span>30%</span>
+              </div>
+              <input type="range" id="reverb-mix" min="0" max="1" step="0.01" value="0.3" />
+            </div>
+          </div>
+          
+          <!-- Delay -->
+          <div class="effect-control">
+            <div class="effect-header">
+              <span class="effect-name">Delay</span>
+              <div id="delay-toggle" class="toggle" title="Toggle Delay"></div>
+            </div>
+            <div class="slider-control">
+              <div class="slider-label">
+                <span>Time</span>
+                <span>0.3s</span>
+              </div>
+              <input type="range" id="delay-time" min="0.05" max="1" step="0.01" value="0.3" />
+            </div>
+            <div class="slider-control">
+              <div class="slider-label">
+                <span>Feedback</span>
+                <span>40%</span>
+              </div>
+              <input type="range" id="delay-feedback" min="0" max="0.9" step="0.01" value="0.4" />
+            </div>
+            <div class="slider-control">
+              <div class="slider-label">
+                <span>Mix</span>
+                <span>25%</span>
+              </div>
+              <input type="range" id="delay-mix" min="0" max="1" step="0.01" value="0.25" />
+            </div>
+          </div>
+        </div>
+        
+        <div class="panel-section">
+          <div class="panel-section-title">Keyboard</div>
+          <div class="keyboard-hint">
+            <span>Keys:</span>
+            <span class="key-cap">A</span>
+            <span class="key-cap">S</span>
+            <span class="key-cap">D</span>
+            <span>... to</span>
+            <span class="key-cap">L</span>
+          </div>
+          <p style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">
+            Press keys to play notes. Use black keys (W, E, T, Y, U, O, P) for sharps/flats.
+          </p>
+          <p style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+            <span class="key-cap">Space</span> Play/Pause
+          </p>
+          <p style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+            <span class="key-cap">Del</span> Delete selected
+          </p>
+        </div>
+        
+        <div class="panel-section">
+          <div class="panel-section-title">Instructions</div>
+          <p style="font-size: 11px; color: var(--text-muted); line-height: 1.5;">
+            • Click on grid to add notes<br>
+            • Right-click to delete notes<br>
+            • Drag notes to move them<br>
+            • Enable Record mode to capture keyboard/piano input during playback
+          </p>
+        </div>
+      </aside>
+      
+      <!-- PIANO ROLL AREA -->
+      <div class="piano-roll-container">
+        
+        <!-- Timeline Header -->
+        <div class="timeline-header">
+          <div class="timeline-corner"></div>
+          <div class="timeline-ruler" style="overflow: hidden;">
+            <canvas id="timeline-canvas"></canvas>
+          </div>
+        </div>
+        
+        <!-- Piano Roll Grid -->
+        <div class="piano-roll-grid" id="piano-roll-scroll">
+          <!-- Piano Keys Sidebar -->
+          <div class="piano-keys" id="piano-keys">
+            <!-- Generated by JS -->
+          </div>
+          
+          <!-- Note Grid Canvas -->
+          <div class="note-grid">
+            <canvas id="grid-canvas"></canvas>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+    
+    <!-- BOTTOM BAR -->
+    <footer class="bottom-bar">
+      
+      <!-- Transport Controls -->
+      <div class="transport-controls">
+        <button id="stop-btn" class="transport-btn stop-btn" title="Stop">⏹</button>
+        <button id="play-btn" class="transport-btn play-btn" title="Play/Pause">▶</button>
+        <button id="record-btn" class="transport-btn secondary" title="Record Mode">⏺</button>
+        
+        <div class="transport-toggles">
+          <div id="loop-toggle" class="transport-toggle active" title="Toggle Loop">
+            <span class="indicator"></span>
+            <span>Loop</span>
+          </div>
+          <div id="metronome-toggle" class="transport-toggle" title="Toggle Metronome">
+            <span class="indicator"></span>
+            <span>Metronome</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Volume Control -->
+      <div class="volume-control">
+        <span class="icon">🔊</span>
+        <input type="range" id="master-volume" min="0" max="1" step="0.01" value="0.7" title="Master Volume" />
+      </div>
+      
+      <!-- Mini Piano -->
+      <div class="mini-piano-container">
+        <div class="mini-piano-label">Mini Piano (C3-C5)</div>
+        <div id="mini-piano" class="mini-piano">
+          <!-- Generated by JS -->
+        </div>
+      </div>
+      
     </footer>
-
-  </main>
+    
+    <!-- STATUS BAR -->
+    <div class="status-bar">
+      <div class="status-left">
+        <span>8 bars • 1/16 grid • C0-C8 range</span>
+      </div>
+      <div class="status-right">
+        <span>NoteLab v1.0 • 100% Browser-Based</span>
+      </div>
+    </div>
+    
+  </div>
+  
+  <!-- MODALS -->
+  
+  <!-- Save Modal -->
+  <div id="save-modal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Save Song</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="song-name-input">Song Name</label>
+          <input type="text" id="song-name-input" placeholder="Enter song name..." maxlength="50" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary modal-close">Cancel</button>
+        <button id="save-confirm" class="btn btn-success">Save</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Load Modal -->
+  <div id="load-modal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Load Song</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="song-list" class="song-list">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary modal-close">Cancel</button>
+        <button id="load-confirm" class="btn btn-primary">Load</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Notifications Container -->
+  <div id="notifications"></div>
+  
+  <!-- JavaScript Modules -->
+  <script src="audioEngine.js"></script>
+  <script src="pianoRoll.js"></script>
+  <script src="transport.js"></script>
+  <script src="storage.js"></script>
+  <script src="ui.js"></script>
+  
 </body>
 </html>

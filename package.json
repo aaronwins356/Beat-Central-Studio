@@ -1,0 +1,22 @@
+{
+  "name": "notelab",
+  "version": "1.0.0",
+  "description": "NoteLab - Browser-based Music Note Player & Song Creator",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "music",
+    "daw",
+    "piano-roll",
+    "web-audio",
+    "synth"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
