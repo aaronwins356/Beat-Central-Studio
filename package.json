@@ -1,22 +1,88 @@
 {
-  "name": "notelab",
-  "version": "1.0.0",
-  "description": "NoteLab - Browser-based Music Note Player & Song Creator",
-  "main": "server.js",
+  "name": "notelab-daw",
+  "version": "2.0.0",
+  "description": "NoteLab DAW - Professional Desktop & Browser-based Digital Audio Workstation",
+  "main": "electron/main.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "electron": "electron .",
+    "electron:dev": "electron .",
+    "build:desktop": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux",
+    "build:all": "electron-builder --win --mac --linux",
+    "postinstall": "electron-builder install-app-deps"
   },
   "keywords": [
     "music",
     "daw",
     "piano-roll",
+    "drum-machine",
     "web-audio",
-    "synth"
+    "synth",
+    "electron",
+    "desktop"
   ],
-  "author": "",
+  "author": "NoteLab Team",
   "license": "MIT",
   "dependencies": {
     "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "electron": "^35.2.1",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.notelab.daw",
+    "productName": "NoteLab DAW",
+    "copyright": "Copyright © 2024 NoteLab Team",
+    "directories": {
+      "output": "dist",
+      "buildResources": "assets"
+    },
+    "files": [
+      "**/*",
+      "!dist/**",
+      "!node_modules/**",
+      "!logs/**",
+      "!*.log",
+      "!.git/**",
+      "!.github/**"
+    ],
+    "extraFiles": [
+      {
+        "from": "assets",
+        "to": "assets",
+        "filter": ["**/*"]
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "assets/icon.ico",
+      "artifactName": "${productName}-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "NoteLab DAW"
+    },
+    "mac": {
+      "target": ["dmg", "zip"],
+      "icon": "assets/icon.icns",
+      "category": "public.app-category.music"
+    },
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "icon": "assets/icon.png",
+      "category": "Audio"
+    }
   }
 }
