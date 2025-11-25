@@ -1139,11 +1139,11 @@ async function exportToMP3() {
     showLoadingOverlay('Encoding MP3...');
     const mp3Blob = await encodeMP3(buffer);
     
-    // Download
+    // Download - sanitize filename by removing invalid filesystem characters
     const url = URL.createObjectURL(mp3Blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${currentSongName.replace(/[^a-z0-9]/gi, '_')}.mp3`;
+    a.download = `${currentSongName.replace(/[<>:"/\\|?*]/g, '_')}.mp3`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -1247,18 +1247,20 @@ async function exportToWAV() {
     const secondsPer16th = 60 / bpm / 4;
     const duration = total16ths * secondsPer16th + 2;
     
-    // Render to buffer
+    // Render notes to buffer
+    // Note: Drum patterns are not yet included in offline rendering
+    // TODO: Add drum pattern rendering to audioEngine.renderToBuffer
     const buffer = await window.AudioEngine.renderToBuffer(notes, currentInstrument, bpm, duration);
     
     // Convert to WAV
     showLoadingOverlay('Creating WAV file...');
     const wavBlob = window.AudioEngine.audioBufferToWav(buffer);
     
-    // Download
+    // Download - sanitize filename by removing invalid filesystem characters
     const url = URL.createObjectURL(wavBlob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${currentSongName.replace(/[^a-z0-9]/gi, '_')}.wav`;
+    a.download = `${currentSongName.replace(/[<>:"/\\|?*]/g, '_')}.wav`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -1283,11 +1285,12 @@ function exportProjectToJSON() {
   const song = collectSongData();
   const jsonString = JSON.stringify(song, null, 2);
   
+  // Sanitize filename by removing invalid filesystem characters
   const blob = new Blob([jsonString], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `${currentSongName.replace(/[^a-z0-9]/gi, '_')}.json`;
+  a.download = `${currentSongName.replace(/[<>:"/\\|?*]/g, '_')}.json`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
