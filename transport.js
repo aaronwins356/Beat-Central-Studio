@@ -17,7 +17,7 @@ const transportState = {
   position: 0,        // Current position in 16th notes
   bpm: 120,
   loopEnabled: true,
-  metronomeEnabled: false,
+  metronomeEnabled: true, // Metronome ON by default
   recordEnabled: false
 };
 
@@ -300,6 +300,14 @@ function scheduler() {
         window.AudioEngine.playNote(instrument, note.pitch, nextScheduleTime, duration, note.velocity);
       });
       
+      // Schedule drum hits at this position
+      if (window.DrumMachine && window.AudioEngine) {
+        const drumHits = window.DrumMachine.getHitsAtStep(currentPosition);
+        drumHits.forEach((hit) => {
+          window.AudioEngine.playDrum(hit.laneId, nextScheduleTime, hit.volume);
+        });
+      }
+      
       lastScheduledPosition = currentPosition;
     }
     
@@ -339,6 +347,11 @@ function updateVisualPosition() {
   
   if (window.PianoRoll) {
     window.PianoRoll.setPlayheadPosition(Math.floor(transportState.position));
+  }
+  
+  // Also update drum machine playhead
+  if (window.DrumMachine) {
+    window.DrumMachine.setPlayheadPosition(Math.floor(transportState.position));
   }
   
   if (onPositionUpdate) {

@@ -31,6 +31,8 @@ function createNewSong(name = 'Untitled') {
     bpm: 120,
     instrument: 'piano',
     notes: [],
+    drumPattern: {},
+    drumLaneStates: {},
     effects: {
       reverb: { enabled: false, mix: 0.3 },
       delay: { enabled: false, time: 0.3, feedback: 0.4, mix: 0.25 }

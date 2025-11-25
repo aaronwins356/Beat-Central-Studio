@@ -26,14 +26,17 @@ const PIANO_ROLL_CONFIG = {
   sixteenthWidth: 20,
   keyboardWidth: 60,
   
-  // Colors by instrument
+  // Colors by instrument (9 instruments)
   noteColors: {
     piano: '#5865f2',
     pluck: '#43b581',
     saw: '#faa61a',
     pad: '#eb459e',
     bass: '#ed4245',
-    bell: '#00aff4'
+    bell: '#00aff4',
+    cleanGuitar: '#9b59b6',
+    distortedGuitar: '#e74c3c',
+    acousticGuitar: '#f39c12'
   }
 };
 

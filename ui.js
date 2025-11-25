@@ -1,5 +1,5 @@
 /**
- * ui.js - UI Controller for NoteLab
+ * ui.js - UI Controller for NoteLab DAW
  * 
  * This module handles:
  * - DOM element initialization
@@ -7,6 +7,10 @@
  * - Keyboard input mapping
  * - Mini piano interaction
  * - Modal dialogs
+ * - Drum machine panel
+ * - Instrument rack
+ * - JSON export/import
+ * - WAV export
  * - Glue between UI elements and engine functions
  */
 
@@ -15,6 +19,7 @@
 let currentInstrument = 'piano';
 let currentSongId = null;
 let currentSongName = 'Untitled';
+let drumPanelCollapsed = false;
 
 // Key mapping for computer keyboard input
 // Maps keyboard keys to MIDI notes (starting from C4 = 60)
@@ -55,9 +60,13 @@ function init() {
   // Initialize piano roll
   initPianoRoll();
   
+  // Initialize drum machine
+  initDrumMachine();
+  
   // Initialize event listeners
   initTransportControls();
   initInstrumentSelector();
+  initInstrumentRack();
   initBPMControl();
   initVolumeControl();
   initEffectControls();
@@ -66,6 +75,7 @@ function init() {
   initSongControls();
   initModals();
   initPianoKeysSidebar();
+  initDrumPanelToggle();
   
   // Set up transport callbacks
   if (window.Transport) {
@@ -76,7 +86,7 @@ function init() {
   // Load last song or create new
   loadLastSong();
   
-  console.log('NoteLab UI initialized');
+  console.log('NoteLab DAW UI initialized');
 }
 
 /**
@@ -89,6 +99,31 @@ function initPianoRoll() {
   
   if (canvas && scrollContainer && timelineCanvas && window.PianoRoll) {
     window.PianoRoll.initCanvas(canvas, scrollContainer, timelineCanvas);
+  }
+}
+
+/**
+ * Initialize the drum machine
+ */
+function initDrumMachine() {
+  const container = document.getElementById('drum-machine-container');
+  if (container && window.DrumMachine) {
+    window.DrumMachine.init(container);
+  }
+}
+
+/**
+ * Initialize drum panel toggle
+ */
+function initDrumPanelToggle() {
+  const toggle = document.getElementById('drum-panel-toggle');
+  const panel = document.querySelector('.drum-panel');
+  
+  if (toggle && panel) {
+    toggle.addEventListener('click', () => {
+      drumPanelCollapsed = !drumPanelCollapsed;
+      panel.classList.toggle('collapsed', drumPanelCollapsed);
+    });
   }
 }
 
@@ -249,6 +284,54 @@ function initInstrumentSelector() {
     if (window.PianoRoll) {
       window.PianoRoll.setCurrentInstrument(currentInstrument);
     }
+    updateInstrumentRack();
+  });
+}
+
+/**
+ * Initialize instrument rack
+ */
+function initInstrumentRack() {
+  const items = document.querySelectorAll('.instrument-item');
+  items.forEach((item) => {
+    item.addEventListener('click', () => {
+      const instrument = item.dataset.instrument;
+      if (instrument) {
+        currentInstrument = instrument;
+        
+        // Update select dropdown
+        const selector = document.getElementById('instrument-select');
+        if (selector) {
+          selector.value = instrument;
+        }
+        
+        // Update piano roll
+        if (window.PianoRoll) {
+          window.PianoRoll.setCurrentInstrument(instrument);
+        }
+        
+        // Play preview note
+        resumeAudioAndDo(() => {
+          if (window.AudioEngine) {
+            window.AudioEngine.playPreviewNote(instrument, 60);
+          }
+        });
+        
+        updateInstrumentRack();
+      }
+    });
+  });
+  
+  updateInstrumentRack();
+}
+
+/**
+ * Update instrument rack UI
+ */
+function updateInstrumentRack() {
+  const items = document.querySelectorAll('.instrument-item');
+  items.forEach((item) => {
+    item.classList.toggle('active', item.dataset.instrument === currentInstrument);
   });
 }
 
@@ -617,6 +700,7 @@ function initSongControls() {
   const saveBtn = document.getElementById('save-btn');
   const loadBtn = document.getElementById('load-btn');
   const exportBtn = document.getElementById('export-btn');
+  const exportWavBtn = document.getElementById('export-wav-btn');
   
   if (newBtn) {
     newBtn.addEventListener('click', createNewSong);
@@ -633,6 +717,10 @@ function initSongControls() {
   if (exportBtn) {
     exportBtn.addEventListener('click', exportToMP3);
   }
+  
+  if (exportWavBtn) {
+    exportWavBtn.addEventListener('click', exportToWAV);
+  }
 }
 
 /**
@@ -645,6 +733,11 @@ function createNewSong() {
   
   if (window.PianoRoll) {
     window.PianoRoll.clearAllNotes();
+  }
+  
+  // Clear drum pattern
+  if (window.DrumMachine) {
+    window.DrumMachine.clearPattern();
   }
   
   currentSongId = null;
@@ -668,6 +761,7 @@ function createNewSong() {
     if (window.PianoRoll) {
       window.PianoRoll.setCurrentInstrument('piano');
     }
+    updateInstrumentRack();
   }
 }
 
@@ -695,6 +789,8 @@ function collectSongData() {
   const notes = window.PianoRoll ? window.PianoRoll.getAllNotes() : [];
   const bpm = window.Transport ? window.Transport.getBPM() : 120;
   const effects = window.AudioEngine ? window.AudioEngine.getEffectSettings() : {};
+  const drumPattern = window.DrumMachine ? window.DrumMachine.getPattern() : {};
+  const drumLaneStates = window.DrumMachine ? window.DrumMachine.getLaneStates() : {};
   
   return {
     id: currentSongId || `song_${Date.now()}`,
@@ -709,6 +805,8 @@ function collectSongData() {
       duration: n.duration,
       velocity: n.velocity
     })),
+    drumPattern,
+    drumLaneStates,
     effects
   };
 }
@@ -759,10 +857,21 @@ function applySongData(song) {
   if (window.PianoRoll) {
     window.PianoRoll.setCurrentInstrument(currentInstrument);
   }
+  updateInstrumentRack();
   
   // Apply notes
   if (window.PianoRoll && song.notes) {
     window.PianoRoll.setAllNotes(song.notes);
+  }
+  
+  // Apply drum pattern
+  if (window.DrumMachine) {
+    if (song.drumPattern) {
+      window.DrumMachine.setPattern(song.drumPattern);
+    }
+    if (song.drumLaneStates) {
+      window.DrumMachine.setLaneStates(song.drumLaneStates);
+    }
   }
   
   // Apply effects
@@ -824,6 +933,26 @@ function initModals() {
   const loadConfirm = document.getElementById('load-confirm');
   if (loadConfirm) {
     loadConfirm.addEventListener('click', confirmLoad);
+  }
+  
+  // JSON export button
+  const exportJsonBtn = document.getElementById('export-json-btn');
+  if (exportJsonBtn) {
+    exportJsonBtn.addEventListener('click', exportProjectToJSON);
+  }
+  
+  // JSON import button
+  const importJsonBtn = document.getElementById('import-json-btn');
+  if (importJsonBtn) {
+    importJsonBtn.addEventListener('click', () => {
+      document.getElementById('json-file-input').click();
+    });
+  }
+  
+  // File input change handler
+  const fileInput = document.getElementById('json-file-input');
+  if (fileInput) {
+    fileInput.addEventListener('change', handleJSONImport);
   }
 }
 
@@ -1010,11 +1139,11 @@ async function exportToMP3() {
     showLoadingOverlay('Encoding MP3...');
     const mp3Blob = await encodeMP3(buffer);
     
-    // Download
+    // Download - sanitize filename by removing invalid filesystem characters
     const url = URL.createObjectURL(mp3Blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${currentSongName.replace(/[^a-z0-9]/gi, '_')}.mp3`;
+    a.download = `${currentSongName.replace(/[<>:"/\\|?*]/g, '_')}.mp3`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -1093,6 +1222,136 @@ function loadScript(src) {
     script.onerror = reject;
     document.head.appendChild(script);
   });
+}
+
+// ==================== WAV EXPORT ====================
+
+/**
+ * Export current song to WAV
+ */
+async function exportToWAV() {
+  if (!window.AudioEngine || !window.PianoRoll || !window.Transport) {
+    showNotification('Export not available', 'error');
+    return;
+  }
+  
+  showLoadingOverlay('Rendering audio...');
+  
+  try {
+    const notes = window.PianoRoll.getAllNotes();
+    const bpm = window.Transport.getBPM();
+    const config = window.PianoRoll.getConfig();
+    
+    // Calculate total duration (8 bars + release time)
+    const total16ths = config.bars * config.beatsPerBar * config.sixteenthsPerBeat;
+    const secondsPer16th = 60 / bpm / 4;
+    const duration = total16ths * secondsPer16th + 2;
+    
+    // Render notes to buffer
+    // Note: Drum patterns are not yet included in offline rendering
+    // TODO: Add drum pattern rendering to audioEngine.renderToBuffer
+    const buffer = await window.AudioEngine.renderToBuffer(notes, currentInstrument, bpm, duration);
+    
+    // Convert to WAV
+    showLoadingOverlay('Creating WAV file...');
+    const wavBlob = window.AudioEngine.audioBufferToWav(buffer);
+    
+    // Download - sanitize filename by removing invalid filesystem characters
+    const url = URL.createObjectURL(wavBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${currentSongName.replace(/[<>:"/\\|?*]/g, '_')}.wav`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    hideLoadingOverlay();
+    showNotification('WAV exported successfully!');
+    
+  } catch (error) {
+    console.error('WAV export error:', error);
+    hideLoadingOverlay();
+    showNotification('WAV export failed: ' + error.message, 'error');
+  }
+}
+
+// ==================== JSON EXPORT/IMPORT ====================
+
+/**
+ * Export current project to JSON file
+ */
+function exportProjectToJSON() {
+  const song = collectSongData();
+  const jsonString = JSON.stringify(song, null, 2);
+  
+  // Sanitize filename by removing invalid filesystem characters
+  const blob = new Blob([jsonString], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${currentSongName.replace(/[<>:"/\\|?*]/g, '_')}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  
+  showNotification('Project exported as JSON!');
+  closeAllModals();
+}
+
+/**
+ * Handle JSON file import
+ * @param {Event} event - File input change event
+ */
+function handleJSONImport(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const song = JSON.parse(e.target.result);
+      
+      // Validate required fields
+      if (!song.name) {
+        throw new Error('Invalid song format: missing name');
+      }
+      
+      // Generate new ID to avoid conflicts
+      song.id = `song_${Date.now()}`;
+      song.name = song.name + ' (imported)';
+      
+      // Apply the song data
+      if (window.Transport) {
+        window.Transport.stop();
+      }
+      
+      applySongData(song);
+      
+      // Save to storage
+      if (window.Storage) {
+        window.Storage.saveSong(song);
+        window.Storage.setCurrentSongId(song.id);
+      }
+      
+      currentSongId = song.id;
+      currentSongName = song.name;
+      updateSongTitle();
+      
+      closeAllModals();
+      showNotification('Project imported successfully!');
+      
+    } catch (error) {
+      console.error('JSON import error:', error);
+      showNotification('Import failed: ' + error.message, 'error');
+    }
+  };
+  
+  reader.readAsText(file);
+  
+  // Reset file input
+  event.target.value = '';
 }
 
 // ==================== UTILITY FUNCTIONS ====================
